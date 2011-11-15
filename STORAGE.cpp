@@ -29,7 +29,7 @@ void STORAGE::check_limits()
 			zmax=zp[i];
 			i_max = i;
 		}
-		if(1)//iflag[i]==1)
+		if(1)//iflag[i]==1) should be modified later
 		{
 			if (dim == 3)
 			{

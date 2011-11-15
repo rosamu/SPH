@@ -653,6 +653,7 @@ void STORAGE::Drop(double dx,double dy,double dz,double xcen,double ycen,double 
 		localZZmax = std::min(ZZmax,localvlz[1]);
 	}
 	// no intersection
+	// no intersection lionel.guo
 	else
 		return;
 	if (lattice == 1 || lattice == 2)

@@ -623,12 +623,6 @@ void STORAGE::Drop(double dx,double dy,double dz,double xcen,double ycen,double 
 	int i_intersectx = 0;
 	int i_intersecty = 0;
 	int i_intersectz = 0;
-	//	n0 = (int)(XXmin/dx);
-	//	n1 = (int)(XXmax/dx)+1;
-	//	m0 = (int)(YYmin/dy);
-	//	m1 = (int)(YYmax/dy)+1;
-	//	l0 = (int)(ZZmin/dz);
-	//	l1 = (int)(ZZmax/dz)+1;
 	if ((XXmin >= localvlx[0] && XXmin <=localvlx[1] && XXmax >= localvlx[1]) ||
 			(XXmin <= localvlx[0] && XXmax >=localvlx[0] && XXmax <= localvlx[1]) ||
 			(XXmin >= localvlx[0] && XXmax <=localvlx[1]) ||
@@ -658,14 +652,9 @@ void STORAGE::Drop(double dx,double dy,double dz,double xcen,double ycen,double 
 		localZZmin = std::max(ZZmin,localvlz[0]);
 		localZZmax = std::min(ZZmax,localvlz[1]);
 	}
+	// no intersection
 	else
 		return;
-	//	n0 = (int)(localXXmin/dx);
-	//	n1 = (int)(localXXmax/dx);
-	//	m0 = (int)(localYYmin/dy);
-	//	m1 = (int)(localYYmax/dy);
-	//	l0 = (int)(localZZmin/dz);
-	//	l1 = (int)(localZZmax/dz);
 	if (lattice == 1 || lattice == 2)
 	{
 		if (localXXmin - vlx[0]< 0.5*dx)

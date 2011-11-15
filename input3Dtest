@@ -1,0 +1,42 @@
+0                       Choose Starting options:  0=new, 1=restart, 2=new with CheckPointg, 3=restart with CheckPointing
+3                       Kernel: 1=gaussian, 2=quadratic; 3=cubic; 5=Wendland
+1                       Time-stepping algorithm: 1=predictor-corrector, 2=verlet, 3=symplectic, 4=Beeman
+2                       Density Filter: 0=none, 1=Shepard filter, 2=MLS
+30                       ndt_FilterPerform (if density filter is used) ?
+0                       Kernel correction 0=None, 1=Kernel correction, 2=Gradient kernel Correction
+1                       Viscosity treatment 1=artificial; 2=laminar; 3=laminar + SPS
+0.1                     Viscosity value( if visc.treatment=1 it's alpha, if not kinem. visc approx 1.e-6)
+0                       Vorticity printing ? (1=yes)
+9.81                       gravity
+3                       dimension
+4                       Equation of State: 1=Tait's equation, 2=Ideal Gas, 3= Morris
+2                       Maximum Depth (h_SWL) to calculate B
+13
+1000
+1000000
+0
+3
+3                       Boundary Conditions: 1=Repulsive Force; 2=Dalrymple; 3=Open
+1                       ndt_DBCPerform ? (1 means no correction)
+1                       Initial Fluid Particle Structure: 1= SC, 2= BCC
+0 0 0			Box dimension LX0,LY0,LZ0?
+8 0.5 0.5                 Box dimension LX1,LY1,LZ1?
+0.25 0.25 0.25          Spacing dx,dy,dz?
+0.866025                h=coefficient*sqrt(dx*dx+dy*dy+dz*dz):  coefficient ???
+0 0 0                   Periodic Lateral boundaries in X, Y, & Z-Directions ? (1=yes)
+1                       Fill box area?
+0			Correct pressure at boundaries ?? (1=y)
+0 8			XMin, Xmax ??
+0 0.5			YMin, Ymax ??
+0 0.5			ZMin, Zmax ??
+0 0 0			initial velocity
+0                       Fill cylindar?
+0.5 0.01                Input the max time and print interval
+0.                      initial time of outputting general data
+0.0005 1.0 -1.0         For detailed recording during RUN: out_detail, start, end
+0.00005 1               input dt ??, variable dt ??
+0.2                     CFL number (0.1-0.5)
+0                       Use of Riemann Solver: 0=None, 1=Conservative (Vila), 2=NonConservative (Parshikov)
+
+
+

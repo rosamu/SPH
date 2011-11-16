@@ -21,7 +21,10 @@ AC_INTERIOR::~AC_INTERIOR() {
 }
 void AC_INTERIOR::doit()
 {
-
+	//	c
+	//	c  ...  store useful arrays
+	//	c
+	//	      !- Need to zero each object for multiobjects -
 	store->bigUdot   = 0.0;
 	if (store->dim == 3)
 		store->bigVdot   = 0.0;
@@ -31,6 +34,18 @@ void AC_INTERIOR::doit()
 		store->Y_Friction   = 0.0;
 	store->Z_Friction   = 0.0;
 	store->nb_inFriction = 0;
+	//	store->ax.assign(store->np,0);
+	//	if (store->dim == 3)
+	//		store->ay.assign(store->np,0);
+	//	store->az.assign(store->np,0);
+	//	store->ar.assign(store->np,0);
+	//	store->ux.assign(store->np,0);
+	//	if (store->dim == 3)
+	//		store->vx.assign(store->np,0);
+	//	store->wx.assign(store->np,0);
+	//	store->aTE.assign(store->np,0);
+	//	store->sum_wab.assign(store->np,0);
+	//	store->rho_sum.assign(store->np,0);
 	for (size_t i=0;i<store->np;i++)
 	{
 		store->xpdot[i] = 0;
@@ -115,264 +130,67 @@ void AC_INTERIOR::doit()
 						//					if(store->cells[j1].nc[kind_p1-1] > 0)
 						if ((kind_p1 == 1)?(store->nc_k1[j1]>0):(store->nc_k2[j1]>0))
 						{
-							//if the cell is not empty, then
-							//loop over it and over neighboring
-							//cells
-							//periodic condition in x-y plane
-							if (store->i_periodicOBs[0] ==1 || store->i_periodicOBs[1] == 1)
+							//c                            ! if the cell is not empty, then
+							//c                            ! loop over it and over neighboring
+							//c                            ! cells
+
+							int lx2 = lx+1;
+							if(lx2<=local_ncn)
+								celij(j1,j1+1,kind_p1,ini_kind_p2,ly2);     //!East
+
+							int ly2 = ly+1;
+							if(ly2<=local_ncm)
 							{
-								int lx2 = lx+1;
-								if(lx2<local_ncn)
-									celij(j1,j1+1,kind_p1,ini_kind_p2,lx2);     //!East
-								else if (lx2 == local_ncn && store->i_periodicOBs[0])
-								{
-									celij(j1,j1+1,kind_p1,ini_kind_p2,lx2);
-									store->i_periodicx = 1;
-									celij(j1,(ly-1)*local_ncn +(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2);
-								}
-								else if (store->i_periodicOBs[0])
-								{
-									store->i_periodicx = 1;
-									celij(j1,(ly-1)*local_ncn +(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2);
-								}
-								int ly2 = ly+1;
-								if(ly2<local_ncm || (ly2 == local_ncm && !store->i_periodicOBs[1]))
-								{
-									celij(j1,j1+local_ncn+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,ly2);   //!North
-									lx2 = lx-1;
-									if(lx2>=1) celij(j1,j1+local_ncn-1+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2);   //!N-West
-									else if (store->i_periodicOBs[0])
-									{
-										store->i_periodicx = 1;
-										celij(j1,(ly+1)*local_ncn-1+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2);
-										store->i_periodicx = 1;
-										celij(j1,(ly+1)*local_ncn-2+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2);
-									}
+								celij(j1,j1+local_ncn,kind_p1,ini_kind_p2,ly2);   //!North
+								lx2 = lx-1;
+								if(lx2>=1) celij(j1,j1+local_ncn-1,kind_p1,ini_kind_p2,ly2);   //!N-West
 
-									lx2 = lx+1;
-									if(lx2<local_ncn) celij(j1,j1+local_ncn+1+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2); //!N-East
-									else if (lx2 == local_ncn && store->i_periodicOBs[0])
-									{
-										celij(j1,j1+local_ncn+1+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2);
-										store->i_periodicx = 1;
-										celij(j1,ly*local_ncn+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2);
-									}
-									else if (store->i_periodicOBs[0])
-									{
-										store->i_periodicx = 1;
-										celij(j1,ly*local_ncn+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2);
-									}
-								}
-								else if (ly2 == local_ncm && store->i_periodicOBs[1])
-								{
-									celij(j1,j1+local_ncn+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,ly2);   //!North
-									store->i_periodicy = 1;
-									celij(j1,lx-1+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,ly2);
-									lx2 = lx-1;
-									if(lx2>1)
-									{
-										celij(j1,j1+local_ncn-1+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2);   //!N-West
-										store->i_periodicy = 1;
-										celij(j1,lx-2+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,ly2);
-									}
-									else if (lx2 == 1)
-									{
-										celij(j1,j1+local_ncn-1+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2);
-										store->i_periodicy = 1;
-										celij(j1,(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2);
-									}
-									else if (store->i_periodicOBs[0])
-									{
-										store->i_periodicx = 1;
-										celij(j1,local_ncm*local_ncn-1+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2);
-										store->i_periodicx = 1;
-										celij(j1,local_ncm*local_ncn-2+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2);
-										store->i_periodicx = 1;
-										store->i_periodicy = 1;
-										celij(j1,local_ncn-1+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2);
-										store->i_periodicx = 1;
-										store->i_periodicy = 1;
-										celij(j1,local_ncn-2+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2);
-									}
-
-									lx2 = lx+1;
-									if(lx2<local_ncn)
-									{
-										celij(j1,j1+local_ncn+1+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2); //!N-East
-										store->i_periodicy = 1;
-										celij(j1,lx+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2);
-									}
-									else if (lx2==local_ncn)
-									{
-										celij(j1,j1+local_ncn+1,kind_p1,ini_kind_p2,lx2); //!N-East
-										store->i_periodicy = 1;
-										celij(j1,local_ncn-1+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2);
-										if (store->i_periodicOBs[0])
-										{
-											store->i_periodicx = 1;
-											celij(j1,(local_ncm-1)*local_ncn+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2);
-
-											store->i_periodicx = 1;
-											store->i_periodicy = 1;
-											celij(j1,0+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2);
-										}
-									}
-									else if (store->i_periodicOBs[0])
-									{
-										store->i_periodicx = 1;
-										celij(j1,(local_ncm-1)*local_ncn,kind_p1,ini_kind_p2,lx2);
-										store->i_periodicx = 1;
-										store->i_periodicy = 1;
-										celij(j1,0+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2);
-									}
-								}
-								else if (ly2 > local_ncm && store->i_periodicOBs[1])
-								{
-									store->i_periodicy = 1;
-									celij(j1,lx-1+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,ly2);   //!North
-									lx2 = lx-1;
-									if(lx2>=1)
-									{
-										store->i_periodicy = 1;
-										celij(j1,lx-2+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2);   //!N-West
-									}
-									else if (store->i_periodicOBs[0])
-									{
-										store->i_periodicx = 1;
-										store->i_periodicy = 1;
-										celij(j1,local_ncn-1+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2);
-										store->i_periodicx = 1;
-										store->i_periodicy = 1;
-										celij(j1,local_ncn-2+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2);
-
-									}
-
-									lx2 = lx+1;
-									if(lx2<local_ncn)
-									{
-										store->i_periodicy = 1;
-										celij(j1,lx+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2); //!N-East
-									}
-									if(lx2==local_ncn)
-									{
-										store->i_periodicy = 1;
-										celij(j1,local_ncn-1+(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2); //!N-East
-										if (store->i_periodicOBs[0])
-										{
-											store->i_periodicx = 1;
-											store->i_periodicy = 1;
-											celij(j1,(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2); //!N-East
-										}
-									}
-									else if (store->i_periodicOBs[0])
-									{
-										store->i_periodicx = 1;
-										store->i_periodicy = 1;
-										celij(j1,(lz-1)*local_ncn*local_ncm,kind_p1,ini_kind_p2,lx2);
-									}
-								}
-								//-- Cells in the next XY  sheet --
-								int lz2=lz+1;
-								if(lz2<=local_ncl)
-								{
-
-									//- Same row -
-									celij(j1,j1+local_ncn*local_ncm,kind_p1,ini_kind_p2,ly2); //!Up
-
-									lx2=lx-1;
-									if(lx2>=1) celij(j1,j1+local_ncn*local_ncm-1,kind_p1,ini_kind_p2,ly2);   //!Up & West
-
-									lx2=lx+1;
-									if(lx2<=local_ncn) celij(j1,j1+local_ncn*local_ncm+1,kind_p1,ini_kind_p2,ly2);   //!Up & East
-
-									//- Next row -
-									ly2=ly+1;
-									if(ly2<=local_ncm)
-									{
-										celij(j1,j1+local_ncn*local_ncm+local_ncn,kind_p1,ini_kind_p2,ly2);   //!Up & North
-
-										lx2=lx-1;
-										if(lx2>=1)
-											celij(j1,j1+local_ncn*local_ncm+local_ncn-1,kind_p1,ini_kind_p2,ly2);   //!Up & North-West
-
-										lx2=lx+1;
-										if(lx2<=local_ncn)
-											celij(j1,j1+local_ncn*local_ncm+local_ncn+1,kind_p1,ini_kind_p2,ly2);   //!Up & North-East
-									}
-
-									//- Previous row -
-									ly2=ly-1;
-									if(ly2>=1)
-									{
-										celij(j1,j1+local_ncn*local_ncm-local_ncn,kind_p1,ini_kind_p2,ly2);   //!Up & South
-
-										lx2=lx-1;
-										if(lx2>=1) celij(j1,j1+local_ncn*local_ncm-local_ncn-1,kind_p1,ini_kind_p2,ly2);   //!Up & SouthWest
-
-										lx2=lx+1;
-										if(lx2<=local_ncn) celij(j1,j1+local_ncn*local_ncm-local_ncn+1,kind_p1,ini_kind_p2,ly2);   //!Up & SouthEast
-									}
-								}
+								lx2 = lx+1;
+								if(lx2<=local_ncn) celij(j1,j1+local_ncn+1,kind_p1,ini_kind_p2,ly2);   //!N-East
 							}
-							else
-							{
-								int lx2 = lx+1;
-								if(lx2<=local_ncn)
-									celij(j1,j1+1,kind_p1,ini_kind_p2,ly2);     //!East
 
-								int ly2 = ly+1;
+							//c          -- Cells in the next XY  sheet --
+							int lz2=lz+1;
+							if(lz2<=local_ncl)
+							{
+
+								//          !- Same row -
+								celij(j1,j1+local_ncn*local_ncm,kind_p1,ini_kind_p2,ly2); //!Up
+
+								lx2=lx-1;
+								if(lx2>=1) celij(j1,j1+local_ncn*local_ncm-1,kind_p1,ini_kind_p2,ly2);   //!Up & West
+
+								lx2=lx+1;
+								if(lx2<=local_ncn) celij(j1,j1+local_ncn*local_ncm+1,kind_p1,ini_kind_p2,ly2);   //!Up & East
+
+								//           !- Next row -
+								ly2=ly+1;
 								if(ly2<=local_ncm)
 								{
-									celij(j1,j1+local_ncn,kind_p1,ini_kind_p2,ly2);   //!North
-									lx2 = lx-1;
-									if(lx2>=1) celij(j1,j1+local_ncn-1,kind_p1,ini_kind_p2,ly2);   //!N-West
-
-									lx2 = lx+1;
-									if(lx2<=local_ncn) celij(j1,j1+local_ncn+1,kind_p1,ini_kind_p2,ly2);   //!N-East
-								}
-
-								//-- Cells in the next XY  sheet --
-								int lz2=lz+1;
-								if(lz2<=local_ncl)
-								{
-
-									//- Same row -
-									celij(j1,j1+local_ncn*local_ncm,kind_p1,ini_kind_p2,ly2); //!Up
+									celij(j1,j1+local_ncn*local_ncm+local_ncn,kind_p1,ini_kind_p2,ly2);   //!Up & North
 
 									lx2=lx-1;
-									if(lx2>=1) celij(j1,j1+local_ncn*local_ncm-1,kind_p1,ini_kind_p2,ly2);   //!Up & West
+									if(lx2>=1)
+										celij(j1,j1+local_ncn*local_ncm+local_ncn-1,kind_p1,ini_kind_p2,ly2);   //!Up & North-West
 
 									lx2=lx+1;
-									if(lx2<=local_ncn) celij(j1,j1+local_ncn*local_ncm+1,kind_p1,ini_kind_p2,ly2);   //!Up & East
-
-									//- Next row -
-									ly2=ly+1;
-									if(ly2<=local_ncm)
-									{
-										celij(j1,j1+local_ncn*local_ncm+local_ncn,kind_p1,ini_kind_p2,ly2);   //!Up & North
-
-										lx2=lx-1;
-										if(lx2>=1)
-											celij(j1,j1+local_ncn*local_ncm+local_ncn-1,kind_p1,ini_kind_p2,ly2);   //!Up & North-West
-
-										lx2=lx+1;
-										if(lx2<=local_ncn)
-											celij(j1,j1+local_ncn*local_ncm+local_ncn+1,kind_p1,ini_kind_p2,ly2);   //!Up & North-East
-									}
-
-									//- Previous row -
-									ly2=ly-1;
-									if(ly2>=1)
-									{
-										celij(j1,j1+local_ncn*local_ncm-local_ncn,kind_p1,ini_kind_p2,ly2);   //!Up & South
-
-										lx2=lx-1;
-										if(lx2>=1) celij(j1,j1+local_ncn*local_ncm-local_ncn-1,kind_p1,ini_kind_p2,ly2);   //!Up & SouthWest
-
-										lx2=lx+1;
-										if(lx2<=local_ncn) celij(j1,j1+local_ncn*local_ncm-local_ncn+1,kind_p1,ini_kind_p2,ly2);   //!Up & SouthEast
-									}
+									if(lx2<=local_ncn)
+										celij(j1,j1+local_ncn*local_ncm+local_ncn+1,kind_p1,ini_kind_p2,ly2);   //!Up & North-East
 								}
+
+								//           !- Previous row -
+								ly2=ly-1;
+								if(ly2>=1)
+								{
+									celij(j1,j1+local_ncn*local_ncm-local_ncn,kind_p1,ini_kind_p2,ly2);   //!Up & South
+
+									lx2=lx-1;
+									if(lx2>=1) celij(j1,j1+local_ncn*local_ncm-local_ncn-1,kind_p1,ini_kind_p2,ly2);   //!Up & SouthWest
+
+									lx2=lx+1;
+									if(lx2<=local_ncn) celij(j1,j1+local_ncn*local_ncm-local_ncn+1,kind_p1,ini_kind_p2,ly2);   //!Up & SouthEast
+								}
+
 							}
 						}
 
@@ -384,14 +202,14 @@ void AC_INTERIOR::doit()
 			for (int lz = 1;lz<=local_ncl;lz++)
 				for (int lx = 1;lx<=local_ncn;lx++)
 				{
-					size_t j1 = lx + (lz-1)*local_ncn;
+					vector<double>::size_type j1 = lx + (lz-1)*local_ncn;
 					j1--;
 					//					if(store->cells[j1].nc[kind_p1-1] > 0)
 					if ((kind_p1 == 1)?(store->nc_k1[j1]>0):(store->nc_k2[j1]>0))
 					{
-						//if the cell is not empty, then
-						//loop over it and over neighboring
-						//cells
+						//c                            ! if the cell is not empty, then
+						//c                            ! loop over it and over neighboring
+						//c                            ! cells
 
 						int lx2 = lx+1;
 						if(lx2<=local_ncn)
@@ -426,6 +244,16 @@ void AC_INTERIOR::doit()
 				}
 	}
 
+	//	store->swpdot.updot=store->ax;
+	//	if (store->dim == 3)
+	//		store->swpdot.vpdot=store->ay;
+	//	store->swpdot.wpdot=store->az;
+	//	store->swpdot.rhodot=store->ar;
+	//	store->swpdot.TEdot=store->aTE;
+	//	store->xcor.assign(store->np,0);
+	//	if (store->dim == 3)
+	//		store->ycor.assign(store->np,0);
+	//	store->zcor.assign(store->np,0);
 	for (size_t i = 0;i<store->np;i++)
 	{
 		store->updot[i] = store->ax[i];
@@ -471,37 +299,37 @@ void AC_INTERIOR::self(int j1,int kind_p1,int ini_kind_p2)
 					double duy = (store->dim == 3)?(store->vp[i] - store->vp[j]):0;
 					double duz = store->wp[i] - store->wp[j];
 
-					//            Calculating kernel & Normalized Kernel Gradient
+					//c            Calculating kernel & Normalized Kernel Gradient
 					solve->kernel_func->kernel(drx,dry,drz,i,j,j1,j1,rr2);
 					solve->kernel_correction_func->kernel_correction(i,j);
 
-					//  ...  average density
+					//c  ...  average density
 
 					double robar  = 0.5*( store->rho[i] + store->rho[j] );
 					double cbar  = 0.5*( store->cs[i] + store->cs[j] );
 
-					//  ...  inner product rv
-					//
+					//c  ...  inner product rv
+					//c
 					double dot = drx*dux + dry*duy + drz*duz;
 
-					//	  Used to calculate the time step due to viscosity
+					//c	  Used to calculate the time step due to viscosity
 
 					solve->visc_dt=std::max(dot/(rr2 + 0.01*store->h*store->h),solve->visc_dt);
-					//
-					//  ...  pressure and viscous force (Monaghan 1992; Ann. Rev.
-					//			        Astron. Astrop. 30. Formula 3.3)
-					//         pm(j) is mass of particle j
-					//
+					//c
+					//c  ...  pressure and viscous force (Monaghan 1992; Ann. Rev.
+					//c			        Astron. Astrop. 30. Formula 3.3)
+					//c         pm(j) is mass of particle j
+					//c
 					double p_v = pr[i] + pr[j];
 
 
-					//  	Tensile correction (Monaghan , JCP.  159 (2000) 290- 311)
-					//	Only to be activated with cubic spline kernel
+					//c  	Tensile correction (Monaghan , JCP.  159 (2000) 290- 311)
+					//c	Only to be activated with cubic spline kernel
 
 					if (store->index_tensile == 1)
 					{
 
-						//              ____ Tensile correction
+						//c              ____ Tensile correction
 
 						double fab=solve->kernel_func->Wab*solve->kernel_func->od_Wdeltap;    //!NOTE: We'll use a non-normalized
 						fab=fab*fab;           //!kernel to calculate tensile correction
@@ -537,8 +365,8 @@ void AC_INTERIOR::self(int j1,int kind_p1,int ini_kind_p2)
 
 					store->viscosity(dot,drx,dry,drz,dux,duy,duz,rr2,cbar,robar,1/robar,i,j,j1,j1);
 
-					//   ...         Thermal Energy
-					//		(Monaghan, JCP 110 (1994) 399- 406)
+					//c   ...         Thermal Energy
+					//c		(Monaghan, JCP 110 (1994) 399- 406)
 
 
 					double term1i=0.5 * p_v *( store->frxi*dux+store->fryi*duy+store->frzi*duz);
@@ -548,17 +376,17 @@ void AC_INTERIOR::self(int j1,int kind_p1,int ini_kind_p2)
 					store->aTE[j]=store->aTE[j]+store->pm[i]*(term1j + store->term2j);
 
 
-					//  ...  density acceleration (Monaghan 1992; Ann. Rev. Astron. Astrop. 30. Formula 3.9)
-					//       using the derivative of the kernel, not the kernel itself
+					//c  ...  density acceleration (Monaghan 1992; Ann. Rev. Astron. Astrop. 30. Formula 3.9)
+					//c       using the derivative of the kernel, not the kernel itself
 
 					double dot2i = dux*store->frxi + duy*store->fryi + duz*store->frzi;
 					double dot2j = dux*store->frxj + duy*store->fryj + duz*store->frzj;
 					store->ar[i] = store->ar[i] + store->pm[j]*dot2i;
 					store->ar[j] = store->ar[j] + store->pm[i]*dot2j;
 
-					//
-					//  ...  XSPH correction (Monaghan 1994;  J. Comp. Phys. 110. Formula 2.6)
-					//
+					//c
+					//c  ...  XSPH correction (Monaghan 1994;  J. Comp. Phys. 110. Formula 2.6)
+					//c
 					double pmj_Wab_over_rhobar = store->pm[j]*solve->kernel_func->Wab/robar;
 					store->ux[i] = store->ux[i] - dux*pmj_Wab_over_rhobar;  //!pm(j) * dux * Wab / robar ! (2.6)
 					if (store->dim == 3)
@@ -598,14 +426,7 @@ void AC_INTERIOR::celij(int j1,int j2,int kind_p1,int ini_kind_p2,int ly2)
 					double drx = store->xp[i] - store->xp[j];
 					double dry = (store->dim == 3)?(store->yp[i] - store->yp[j]):0;
 					double drz = store->zp[i] - store->zp[j];
-					if (store->i_periodicOBs[0] && store->i_periodicx == 1)
-					{
-						drx = (drx>0)?(drx - (store->localvlx[1] - store->localvlx[0])):(drx + (store->localvlx[1] - store->localvlx[0]));
-					}
-					if (store->i_periodicOBs[1] && store->i_periodicy == 1)
-					{
-						dry = (dry>0)?(dry - (store->localvly[1] - store->localvly[0])):(dry + (store->localvly[1] - store->localvly[0]));
-					}
+
 					double rr2 = drx*drx + dry*dry + drz*drz;
 
 					if(rr2 < 4 * store->h * store->h && rr2 > 1.e-18)
@@ -614,38 +435,38 @@ void AC_INTERIOR::celij(int j1,int j2,int kind_p1,int ini_kind_p2,int ly2)
 						double duy = (store->dim == 3)?(store->vp[i] - store->vp[j]):0;
 						double duz = store->wp[i] - store->wp[j];
 
-						//            Calculating kernel & Normalized Kernel Gradient
+						//c            Calculating kernel & Normalized Kernel Gradient
 						solve->kernel_func->kernel(drx,dry,drz,i,j,j1,j2,rr2);
 						solve->kernel_correction_func->kernel_correction(i,j);
 
 
-						//  ...  average density
+						//c  ...  average density
 
 						double robar  = 0.5*( store->rho[i] + store->rho[j] );
 						double cbar  = 0.5*( store->cs[i] + store->cs[j] );
 
-						//  ...  inner product rv
-						//
+						//c  ...  inner product rv
+						//c
 						double dot = drx*dux + dry*duy + drz*duz;
 
-						//	  Used to calculate the time step due to viscosity
+						//c	  Used to calculate the time step due to viscosity
 
 						solve->visc_dt=std::max(dot/(rr2 + 0.01*store->h*store->h),solve->visc_dt);
-						//
-						//  ...  pressure and viscous force (Monaghan 1992; Ann. Rev.
-						//			        Astron. Astrop. 30. Formula 3.3)
-						//         pm(j) is mass of particle j
-						//
+						//c
+						//c  ...  pressure and viscous force (Monaghan 1992; Ann. Rev.
+						//c			        Astron. Astrop. 30. Formula 3.3)
+						//c         pm(j) is mass of particle j
+						//c
 						double p_v = pr[i] + pr[j];
 
 
-						//  	Tensile correction (Monaghan , JCP.  159 (2000) 290- 311)
-						//	Only to be activated with cubic spline kernel
+						//c  	Tensile correction (Monaghan , JCP.  159 (2000) 290- 311)
+						//c	Only to be activated with cubic spline kernel
 
 						if (store->index_tensile == 1)
 						{
 
-							//              ____ Tensile correction
+							//c              ____ Tensile correction
 
 							double fab=solve->kernel_func->Wab*solve->kernel_func->od_Wdeltap;    //!NOTE: We'll use a non-normalized
 							fab=fab*fab;           //!kernel to calculate tensile correction
@@ -681,8 +502,8 @@ void AC_INTERIOR::celij(int j1,int j2,int kind_p1,int ini_kind_p2,int ly2)
 
 						store->viscosity(dot,drx,dry,drz,dux,duy,duz,rr2,cbar,robar,1/robar,i,j,j1,j2);
 
-						//   ...         Thermal Energy
-						//		(Monaghan, JCP 110 (1994) 399- 406)
+						//c   ...         Thermal Energy
+						//c		(Monaghan, JCP 110 (1994) 399- 406)
 
 
 						double term1i=0.5 * p_v *( store->frxi*dux+store->fryi*duy+store->frzi*duz);
@@ -692,17 +513,17 @@ void AC_INTERIOR::celij(int j1,int j2,int kind_p1,int ini_kind_p2,int ly2)
 						store->aTE[j]=store->aTE[j]+store->pm[i]*(term1j + store->term2j);
 
 
-						//  ...  density acceleration (Monaghan 1992; Ann. Rev. Astron. Astrop. 30. Formula 3.9)
-						//       using the derivative of the kernel, not the kernel itself
+						//c  ...  density acceleration (Monaghan 1992; Ann. Rev. Astron. Astrop. 30. Formula 3.9)
+						//c       using the derivative of the kernel, not the kernel itself
 
 						double dot2i = dux*store->frxi + duy*store->fryi + duz*store->frzi;
 						double dot2j = dux*store->frxj + duy*store->fryj + duz*store->frzj;
 						store->ar[i] = store->ar[i] + store->pm[j]*dot2i;
 						store->ar[j] = store->ar[j] + store->pm[i]*dot2j;
 
-						//
-						//  ...  XSPH correction (Monaghan 1994;  J. Comp. Phys. 110. Formula 2.6)
-						//
+						//c
+						//c  ...  XSPH correction (Monaghan 1994;  J. Comp. Phys. 110. Formula 2.6)
+						//c
 						double pmj_Wab_over_rhobar = store->pm[j]*solve->kernel_func->Wab/robar;
 						store->ux[i] = store->ux[i] - dux*pmj_Wab_over_rhobar;  //!pm(j) * dux * Wab / robar ! (2.6)
 						if (store->dim == 3)
@@ -720,8 +541,6 @@ void AC_INTERIOR::celij(int j1,int j2,int kind_p1,int ini_kind_p2,int ly2)
 			}
 		}
 	}
-	if (store->i_periodicx == 1) store->i_periodicx = 0;
-	if (store->i_periodicy == 1) store->i_periodicy = 0;
 }
 
 } /* namespace std */

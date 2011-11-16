@@ -70,7 +70,6 @@ public:
 	int i_viscos;
 	int IBC; //BC
     int i_periodicOBs[3];
-    int i_periodicx, i_periodicy;
     int lattice;
     int i_EoS;
     double h_SWL;

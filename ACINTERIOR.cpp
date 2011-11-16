@@ -34,82 +34,63 @@ void AC_INTERIOR::doit()
 		store->Y_Friction   = 0.0;
 	store->Z_Friction   = 0.0;
 	store->nb_inFriction = 0;
-	//	store->ax.assign(store->np,0);
-	//	if (store->dim == 3)
-	//		store->ay.assign(store->np,0);
-	//	store->az.assign(store->np,0);
-	//	store->ar.assign(store->np,0);
-	//	store->ux.assign(store->np,0);
-	//	if (store->dim == 3)
-	//		store->vx.assign(store->np,0);
-	//	store->wx.assign(store->np,0);
-	//	store->aTE.assign(store->np,0);
-	//	store->sum_wab.assign(store->np,0);
-	//	store->rho_sum.assign(store->np,0);
+
+	vector<double>::size_type i;
+//	store->ax.assign(store->np,0);
+//	if (store->dim == 3)
+//		store->ay.assign(store->np,0);
+//	store->az.assign(store->np,0);
+//	store->ar.assign(store->np,0);
+//	store->ux.assign(store->np,0);
+//	if (store->dim == 3)
+//		store->vx.assign(store->np,0);
+//	store->wx.assign(store->np,0);
+//	store->aTE.assign(store->np,0);
+//	store->sum_wab.assign(store->np,0);
+//	store->rho_sum.assign(store->np,0);
 	for (size_t i=0;i<store->np;i++)
 	{
-		store->xpdot[i] = 0;
-		store->ypdot[i] = 0;
-		store->zpdot[i] = 0;
-		store->updot[i] = 0;
-		store->vpdot[i] = 0;
-		store->wpdot[i] = 0;
-		store->TEdot[i] = 0;
-		store->rhodot[i] = 0;
-		store->xpdot[i]=0;
-		store->ypdot[i]=0;
-		store->zpdot[i]=0;
-		store->updot[i]=0;
-		store->vpdot[i]=0;
-		store->wpdot[i]=0;
-		store->TEdot[i]=0;
-		store->rhodot[i]=0;
-		store->ax[i]=0;
-		store->ay[i]=0;
-		store->az[i]=0;
-		store->ar[i]=0;
-		store->ux[i]=0;
-		store->vx[i]=0;
-		store->wx[i]=0;
-		store->aTE[i]=0;
-		store->xcor[i]=0;
-		store->ycor[i]=0;
-		store->zcor[i]=0;
-		store->bflag[i] = 0;
+		store->ax[i] = 0;
+		store->ay[i] = 0;
+		store->az[i] = 0;
+		store->ar[i] = 0;
+		store->ux[i] = 0;
+		store->vx[i] = 0;
+		store->wx[i] = 0;
+		store->aTE[i] = 0;
 	}
-	//	store->dudx_CSPHo = store->dudx_CSPH;
-	//	store->dudy_CSPHo = store->dudy_CSPH;
-	//	store->dudz_CSPHo = store->dudz_CSPH;
-	//	store->dvdx_CSPHo = store->dvdx_CSPH;
-	//	store->dvdy_CSPHo = store->dvdy_CSPH;
-	//	store->dvdz_CSPHo = store->dvdz_CSPH;
-	//	store->dwdx_CSPHo = store->dwdx_CSPH;
-	//	store->dwdy_CSPHo = store->dwdy_CSPH;
-	//	store->dwdz_CSPHo = store->dwdz_CSPH;
-	//	store->dTEdx_CSPHo = store->dTEdx_CSPH;
-	//	store->dTEdy_CSPHo = store->dTEdy_CSPH;
-	//	store->dTEdz_CSPHo = store->dTEdz_CSPH;
-	//	store->drhodx_CSPHo = store->drhodx_CSPH;
-	//	store->drhody_CSPHo = store->drhody_CSPH;
-	//	store->drhodz_CSPHo = store->drhodz_CSPH;
-	//	store->dudx_CSPH.assign(store->np,0);
-	//	store->dudy_CSPH.assign(store->np,0);
-	//	store->dudz_CSPH.assign(store->np,0);
-	//	store->dvdx_CSPH.assign(store->np,0);
-	//	store->dvdy_CSPH.assign(store->np,0);
-	//	store->dvdz_CSPH.assign(store->np,0);
-	//	store->dwdx_CSPH.assign(store->np,0);
-	//	store->dwdy_CSPH.assign(store->np,0);
-	//	store->dwdz_CSPH.assign(store->np,0);
-	//	store->dTEdx_CSPH.assign(store->np,0);
-	//	store->dTEdy_CSPH.assign(store->np,0);
-	//	store->dTEdz_CSPH.assign(store->np,0);
-	//	store->drhodx_CSPH.assign(store->np,0);
-	//	store->drhody_CSPH.assign(store->np,0);
-	//	store->drhodz_CSPH.assign(store->np,0);
-	pr.clear();
+//	store->dudx_CSPHo = store->dudx_CSPH;
+//	store->dudy_CSPHo = store->dudy_CSPH;
+//	store->dudz_CSPHo = store->dudz_CSPH;
+//	store->dvdx_CSPHo = store->dvdx_CSPH;
+//	store->dvdy_CSPHo = store->dvdy_CSPH;
+//	store->dvdz_CSPHo = store->dvdz_CSPH;
+//	store->dwdx_CSPHo = store->dwdx_CSPH;
+//	store->dwdy_CSPHo = store->dwdy_CSPH;
+//	store->dwdz_CSPHo = store->dwdz_CSPH;
+//	store->dTEdx_CSPHo = store->dTEdx_CSPH;
+//	store->dTEdy_CSPHo = store->dTEdy_CSPH;
+//	store->dTEdz_CSPHo = store->dTEdz_CSPH;
+//	store->drhodx_CSPHo = store->drhodx_CSPH;
+//	store->drhody_CSPHo = store->drhody_CSPH;
+//	store->drhodz_CSPHo = store->drhodz_CSPH;
+//	store->dudx_CSPH.assign(store->np,0);
+//	store->dudy_CSPH.assign(store->np,0);
+//	store->dudz_CSPH.assign(store->np,0);
+//	store->dvdx_CSPH.assign(store->np,0);
+//	store->dvdy_CSPH.assign(store->np,0);
+//	store->dvdz_CSPH.assign(store->np,0);
+//	store->dwdx_CSPH.assign(store->np,0);
+//	store->dwdy_CSPH.assign(store->np,0);
+//	store->dwdz_CSPH.assign(store->np,0);
+//	store->dTEdx_CSPH.assign(store->np,0);
+//	store->dTEdy_CSPH.assign(store->np,0);
+//	store->dTEdz_CSPH.assign(store->np,0);
+//	store->drhodx_CSPH.assign(store->np,0);
+//	store->drhody_CSPH.assign(store->np,0);
+//	store->drhodz_CSPH.assign(store->np,0);
 	pr.assign(store->np,0);
-	for (size_t i = 0;i<store->np;i++)
+	for (i = 0;i<store->np;i++)
 	{
 		pr[i] = (store->p[i]/(store->rho[i]*store->rho[i]));
 	}
@@ -121,12 +102,12 @@ void AC_INTERIOR::doit()
 		if (store->dim == 3)
 		{
 			int local_ncn = store->local_ncn,local_ncm = store->local_ncm,local_ncl=store->local_ncl;
-			//			int lzmax = store->local_ncl_interior[1],lymax = store->local_ncm_interior[1],lxmax = store->local_ncn_interior[1];
 			for (int lz = 1;lz<=local_ncl;lz++)
 				for (int ly = 1;ly<=local_ncm;ly++)
 					for (int lx = 1;lx<=local_ncn;lx++)
 					{
-						size_t j1 = (lx-1) + (ly-1)*local_ncn +(lz-1)*local_ncn*local_ncm;
+						vector<double>::size_type j1 = lx + (ly-1)*local_ncn +(lz-1)*local_ncn*local_ncm;
+						j1--;
 						//					if(store->cells[j1].nc[kind_p1-1] > 0)
 						if ((kind_p1 == 1)?(store->nc_k1[j1]>0):(store->nc_k2[j1]>0))
 						{
@@ -229,32 +210,23 @@ void AC_INTERIOR::doit()
 					}
 				}
 		}
-		//		for (size_t j1 = 0;j1<store->nx;j1++)
-		//			if(store->cells[j1].nc[kind_p1-1] > 0)
-		int local_ncn = store->local_ncn,local_ncm = store->local_ncm,local_ncl=store->local_ncl;
-		int lzmax = store->local_ncl_interior[1],lymax = store->local_ncm_interior[1],lxmax = store->local_ncn_interior[1];
-		for (int lz = store->local_ncl_interior[0]+1;lz<=lzmax;lz++)
-			for (int ly = store->local_ncm_interior[0]+1;ly<=lymax;ly++)
-				for (int lx = store->local_ncn_interior[0]+1;lx<=lxmax;lx++)
-				{
-					size_t j1 = (lx-1) + (ly-1)*local_ncn +(lz-1)*local_ncn*local_ncm;
-					//		for (size_t j1 = 0;j1<store->nx;j1++)
-					if ((kind_p1 == 1)?(store->nc_k1[j1]>0):(store->nc_k2[j1]>0))
-						self(j1,kind_p1,ini_kind_p2);
-				}
+		for (size_t j1 = 0;j1<store->nx;j1++)
+			//			if(store->cells[j1].nc[kind_p1-1] > 0)
+			if ((kind_p1 == 1)?(store->nc_k1[j1]>0):(store->nc_k2[j1]>0))
+				self(j1,kind_p1,ini_kind_p2);
 	}
 
-	//	store->swpdot.updot=store->ax;
-	//	if (store->dim == 3)
-	//		store->swpdot.vpdot=store->ay;
-	//	store->swpdot.wpdot=store->az;
-	//	store->swpdot.rhodot=store->ar;
-	//	store->swpdot.TEdot=store->aTE;
-	//	store->xcor.assign(store->np,0);
-	//	if (store->dim == 3)
-	//		store->ycor.assign(store->np,0);
-	//	store->zcor.assign(store->np,0);
-	for (size_t i = 0;i<store->np;i++)
+//	store->swpdot.updot=store->ax;
+//	if (store->dim == 3)
+//		store->swpdot.vpdot=store->ay;
+//	store->swpdot.wpdot=store->az;
+//	store->swpdot.rhodot=store->ar;
+//	store->swpdot.TEdot=store->aTE;
+//	store->xcor.assign(store->np,0);
+//	if (store->dim == 3)
+//		store->ycor.assign(store->np,0);
+//	store->zcor.assign(store->np,0);
+	for (i = 0;i<store->np;i++)
 	{
 		store->updot[i] = store->ax[i];
 		store->vpdot[i] = store->ay[i];

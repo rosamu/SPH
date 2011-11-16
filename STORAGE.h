@@ -13,11 +13,12 @@
 #include "SPH.h"
 #include "assert.h"
 #include <list>
-#include "solver.h"
+//#include "solver.h"
 #include "mpi.h"
 #include <algorithm>
+#include <stdio.h>
 using namespace std;
-#define Index3D(i,j,k,n,m,l) ((k)*(m*n)+(j)*(n)+(i))
+#define Index3D(i,j,k,n,m,l) ((k)*(m)*(n)+(j)*(n)+(i))
 
 class STORAGE {
 public:
@@ -30,15 +31,16 @@ public:
 	void Boundaries_LeftRight(int,int,int,double,double,double);
 	void Boundaries_Bottom(int,int,int,double,double,double);
 	void Fill_Part(int,int,int,double,double,double,double,double,double);
-	void Drop(double,double,double,double,double,double,double,double,double,double);
+	void Drop(double,double,double,double,double,double,double,double,double,double,double);
 	void pos_veloc(double,double,double,double,double,double);
 	void pressure(double,double,double);
+	void pressure(double,double,double,double);
 	void pressure_b(double,double,double);
 	void Initialization(string);
 	void divide(int,int,int);
 	void print_divide();
 	const char *right_flush(int,int);
-	void print_out(int,double);
+	void print_out(int,double,const char*);
 	void print_out_cell(int,double);
 	void gradients_calc(int i,int j,double dux,double duy,double duz);
 	void gradients_calc_conservative(int i,int j,double dux,double duy,double duz){assert(false);}
@@ -51,6 +53,13 @@ public:
 	void ParallelAdjustment();
 	void SendRecvBuffer();
 	void ParallelAllocation(size_t);
+	void ParticleNumberSync();
+	void InterfacePrint(int,double);
+	void StatesPrint(int,double,char*,const char*);
+	int exists(const char *fname);
+	void particlegathering(int step);
+	void interior_print_out(int,double,double);
+	void interior_read(int&,double&,double&);
 	//data
 
 	///initial data
@@ -61,6 +70,7 @@ public:
 	int i_viscos;
 	int IBC; //BC
     int i_periodicOBs[3];
+    int i_periodicx, i_periodicy;
     int lattice;
     int i_EoS;
     double h_SWL;
@@ -81,9 +91,10 @@ public:
     double dy;
     double dz;
     double h;
-    unsigned np;
-    unsigned nb;
-    unsigned nbb;
+    size_t np;
+    size_t nb;
+    size_t nbb1;
+    size_t nbb;
     unsigned nx;
     int ivar_dt;
     double dt;
@@ -93,6 +104,7 @@ public:
     double dtrec_det; //Detailed recording
     double t_sta_det;
     double t_end_det;
+    double interior_print_out_time_interval;
     int i_restartRun;
     double CFL_number;
     double coefficient;
@@ -141,36 +153,36 @@ public:
     double Y_Friction;
     double Z_Friction;
     int nb_inFriction;
-	vector<double>	         dudx_CSPH;
-	vector<double>	         dudy_CSPH;
-	vector<double>	         dudz_CSPH;
-	vector<double>	         dvdx_CSPH;
-	vector<double>	         dvdy_CSPH;
-	vector<double>	         dvdz_CSPH;
-	vector<double>	         dwdx_CSPH;
-	vector<double>	         dwdy_CSPH;
-	vector<double>	         dwdz_CSPH;
-	vector<double>	         dTEdx_CSPH;
-	vector<double>	         dTEdy_CSPH;
-	vector<double>	         dTEdz_CSPH;
-	vector<double>	         drhodx_CSPH;
-	vector<double>	         drhody_CSPH;
-	vector<double>	         drhodz_CSPH;
-	vector<double> dudx_CSPHo;
-	vector<double> dudy_CSPHo;
-	vector<double> dudz_CSPHo;
-	vector<double> dvdx_CSPHo;
-	vector<double> dvdy_CSPHo;
-	vector<double> dvdz_CSPHo;
-	vector<double> dwdx_CSPHo;
-	vector<double> dwdy_CSPHo;
-	vector<double> dwdz_CSPHo;
-	vector<double> dTEdx_CSPHo;
-	vector<double> dTEdy_CSPHo;
-	vector<double> dTEdz_CSPHo;
-	vector<double> drhodx_CSPHo;
-	vector<double> drhody_CSPHo;
-	vector<double> drhodz_CSPHo;
+//	vector<double>	         dudx_CSPH;
+//	vector<double>	         dudy_CSPH;
+//	vector<double>	         dudz_CSPH;
+//	vector<double>	         dvdx_CSPH;
+//	vector<double>	         dvdy_CSPH;
+//	vector<double>	         dvdz_CSPH;
+//	vector<double>	         dwdx_CSPH;
+//	vector<double>	         dwdy_CSPH;
+//	vector<double>	         dwdz_CSPH;
+//	vector<double>	         dTEdx_CSPH;
+//	vector<double>	         dTEdy_CSPH;
+//	vector<double>	         dTEdz_CSPH;
+//	vector<double>	         drhodx_CSPH;
+//	vector<double>	         drhody_CSPH;
+//	vector<double>	         drhodz_CSPH;
+//	vector<double> dudx_CSPHo;
+//	vector<double> dudy_CSPHo;
+//	vector<double> dudz_CSPHo;
+//	vector<double> dvdx_CSPHo;
+//	vector<double> dvdy_CSPHo;
+//	vector<double> dvdz_CSPHo;
+//	vector<double> dwdx_CSPHo;
+//	vector<double> dwdy_CSPHo;
+//	vector<double> dwdz_CSPHo;
+//	vector<double> dTEdx_CSPHo;
+//	vector<double> dTEdy_CSPHo;
+//	vector<double> dTEdz_CSPHo;
+//	vector<double> drhodx_CSPHo;
+//	vector<double> drhody_CSPHo;
+//	vector<double> drhodz_CSPHo;
 	double * ax,* ay,* az,* ar,* ux,* vx,* wx,* aTE;
 	double *xcor,*ycor,*zcor;
 	double term2i;
@@ -192,7 +204,7 @@ public:
 	double * rho_sum_MLS,* sum_wab,* rho_sum,* beta0_MLS,* beta1x_MLS,* beta1y_MLS,* beta1z_MLS;
 	int detail;
 	//ELECTRONIC
-	PETSc *m_pSolver;
+//	PETSc *m_pSolver;
 	double * Phi;
 	double * Jx, * Jy, * Jz;
 	double * GPx, * GPy, * GPz;
@@ -219,7 +231,7 @@ public:
     vector<double> DisplacedAndBufferParticleup;
     vector<double> DisplacedAndBufferParticlevp;
     vector<double> DisplacedAndBufferParticlewp;
-    vector<double> DisplacedAndBufferParticlep;
+    vector<double> DisplacedAndBufferParticleTE;
     vector<double> DisplacedAndBufferParticlerho;
     vector<double> DisplacedAndBufferParticlepm;
     double * SendBuffer;
@@ -227,6 +239,9 @@ public:
     size_t TotalNumberOfParticleSend;
     size_t TotalNumberOfParticleRecv;
     int i_SR_step;
+    size_t np_max;
+    double *scalar;
+    int i_extendz;
 };
 
 
